@@ -1,7 +1,10 @@
 package utilities;
 
-import java.io.BufferedReader;
+import com.opencsv.bean.CsvToBeanBuilder;
+import model.CarDetails;
+
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +13,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class FileReader {
+public class FileUtils {
 
     public Set<String> getRegistrationNumbersFromAllInputFiles(String inputFilesPath, String fileNameStartsWith) throws IOException {
         List<File> filesToIterate = getFilesStartingWithName(inputFilesPath, fileNameStartsWith);
@@ -36,8 +39,16 @@ public class FileReader {
         return regNumbers;
     }
 
+    public static List<CarDetails> convertCSVToCarDetailsObjects(final String filePath, String fileName) throws IOException, ClassNotFoundException {
+        File file = getFilesStartingWithName( filePath,fileName).get(0);
+        List<CarDetails> expectedCarDetails = new CsvToBeanBuilder(new FileReader(file.getAbsolutePath()))
+                .withType(CarDetails.class)
+                .build()
+                .parse();
+        return expectedCarDetails;
+    }
+
     private static List<File> getFilesStartingWithName(String filepath, String fileNameStartsWith) throws IOException {
-        System.out.println("userDIr ==== : " + System.getProperty("user.dir"));
         return Files.list(Paths.get(filepath))
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
